@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASMS LAB | Evidence-Informed Risk Prototype</title>
+<style>
+:root{
+ --primary:#3d7dcc;--primary-dark:#183f78;--cyan:#5a9be6;--navy:#e8f0fb;
+ --bg:#071426;--surface:#0c1d33;--surface2:#10243d;--border:#203957;
+ --text:#e4edf8;--muted:#9db0c7;--green:#35b58c;--amber:#e0ad4f;--red:#e66b78;
+ --shadow:0 10px 35px rgba(0,0,0,.25);--shadow2:0 18px 50px rgba(0,0,0,.38);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#071426 0%,#091b31 100%);color:var(--text);
+ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+header{height:78px;background:rgba(8,23,42,.98);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
+ display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:50}
+.brand{display:flex;align-items:center;gap:13px}.brandmark{width:48px;height:48px;filter:drop-shadow(0 7px 14px rgba(11,114,133,.22))}
+.brand h1{margin:0;font-size:21px;letter-spacing:-.3px;color:var(--navy)}.brand h1 span{color:var(--primary)}
+.brand small{display:block;color:var(--muted);font-size:10px;margin-top:2px;font-weight:600;letter-spacing:.15px}
+.header-right{display:flex;align-items:center;gap:12px}.status{font-size:11px;color:#58717e;padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:#0d2138}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22a878;margin-right:6px;box-shadow:0 0 0 3px #22a87818}
+.layout{display:flex;min-height:calc(100vh - 78px)}
+aside{width:238px;background:#08182c;border-right:1px solid var(--border);padding:25px 15px;display:flex;flex-direction:column;position:sticky;top:78px;height:calc(100vh - 78px)}
+.section-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#8b99a9;font-weight:900;padding:0 12px 10px}
+nav a{display:flex;align-items:center;gap:11px;text-decoration:none;color:#b0c0d2;padding:12px 13px;margin:3px 0;border-radius:10px;font-size:13px;font-weight:700;transition:.2s}
+nav a:hover,nav a.active{background:#142c49;color:var(--primary);transform:translateX(2px)}
+.side-info{margin-top:auto;background:linear-gradient(135deg,#eef3fa,#f5f8fc);border:1px solid #d7e2ef;border-radius:14px;padding:14px;font-size:10px;color:#9fb1c7;line-height:1.6}
+.side-info b{color:var(--navy)}
+main{flex:1;padding:30px;max-width:1540px;margin:auto;width:100%}
+.hero{background:linear-gradient(135deg,#071f3d 0%,#123b73 55%,#1b4f8f 100%);border-radius:20px;padding:26px 28px;color:#fff;
+ box-shadow:var(--shadow2);position:relative;overflow:hidden;margin-bottom:22px}
+.hero:after{content:"";position:absolute;width:300px;height:300px;border:1px solid #ffffff22;border-radius:50%;right:-100px;top:-130px;box-shadow:0 0 0 35px #ffffff0d,0 0 0 70px #ffffff08}
+.hero h2{margin:0;font-size:29px;letter-spacing:-.6px}.hero p{margin:8px 0 0;color:#e4ebf5;font-size:12px;max-width:760px;line-height:1.6}
+.hero-row{display:flex;justify-content:space-between;gap:20px;align-items:center;position:relative;z-index:2}
+.hero-badge{border:1px solid #ffffff38;background:#ffffff16;border-radius:999px;padding:9px 13px;font-size:10px;font-weight:800;white-space:nowrap}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:21px;margin-bottom:20px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.tab{border:1px solid var(--border);background:#0d2138;border-radius:13px;padding:15px;text-align:left;cursor:pointer;display:flex;gap:12px;transition:.2s}
+.tab:hover{border-color:#a9bdd8;transform:translateY(-1px)}.tab.active{border-color:#6e92c2;background:#10243d;box-shadow:inset 4px 0 0 var(--primary)}
+.tab strong{display:block;color:var(--navy);font-size:13px}.tab span{display:block;color:var(--muted);font-size:10px;margin-top:4px;line-height:1.4}
+.icon{width:40px;height:40px;border-radius:11px;background:#e7edf7;color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;flex:none}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(310px,.75fr);gap:20px}.panel{display:none}.panel.active{display:block}
+.card-title{display:flex;justify-content:space-between;gap:15px;margin-bottom:18px}.card-title h3{margin:0;font-size:17px;color:var(--navy)}.card-title p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.55}
+.tag{font-size:9px;color:#526982;background:#10243d;border:1px solid var(--border);border-radius:7px;padding:6px 8px;white-space:nowrap;height:max-content;font-weight:800;letter-spacing:.4px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.field{margin-bottom:14px}
+.field label{display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:#c4d3e5;margin-bottom:6px}.field small{font-weight:500;color:#99a9b2}
+input,select{width:100%;height:42px;border:1px solid #2b4665;border-radius:9px;padding:0 11px;background:#0d2138;color:var(--text);font-size:13px;outline:none;transition:.2s}
+input:hover,select:hover{border-color:#45698f}input:focus,select:focus{border-color:#416fa8;box-shadow:0 0 0 4px #3d7dcc30}
+.help{font-size:9px;color:#91a4ba;margin-top:4px;line-height:1.4}.full{grid-column:1/-1}
+.action{display:flex;gap:10px;margin-top:4px}.primary{flex:1;height:46px;border:0;border-radius:9px;background:linear-gradient(135deg,#123b73,#0a2850);color:#fff;font-weight:850;cursor:pointer;box-shadow:0 8px 18px #123b7322;transition:.2s}
+.primary:hover{transform:translateY(-1px);box-shadow:0 11px 22px rgba(8,76,89,.28)}
+.primary:active{transform:translateY(0);box-shadow:0 5px 12px rgba(8,76,89,.20)}
+.primary:focus-visible,.secondary:focus-visible,.tab:focus-visible{outline:3px solid rgba(24,160,174,.25);outline-offset:2px}
+.secondary{height:46px;padding:0 17px;border:1px solid var(--border);border-radius:9px;background:#0d2138;color:#b0c0d2;font-weight:800;cursor:pointer}
+.secondary:hover{background:#132943}
+.result{display:none;border-radius:14px;padding:18px;margin-top:18px;border:1px solid;animation:rise .3s ease}
+@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.result.low{background:#EEF8F4;border-color:#B8DED2}.result.medium{background:#FFF8EA;border-color:#E8D29D}.result.high{background:#FFF1F3;border-color:#E5B7BE}.result.info{background:#EEF7FA;border-color:#C4DDE5}
+.result-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.result-title{font-size:17px;font-weight:900}.score{font-size:27px;font-weight:900;color:var(--navy);margin-top:5px}.sub{font-size:11px;color:#5e747f;line-height:1.6;margin:6px 0 12px}
+.bar{height:9px;background:#e3edf1;border-radius:20px;overflow:hidden}.bar div{height:100%;width:0;background:linear-gradient(90deg,#187A61,#123b73);transition:width .6s ease}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{border:1px solid var(--border);background:var(--surface2);padding:12px;border-radius:10px}.stat span{font-size:9px;color:var(--muted);font-weight:800;letter-spacing:.3px}.stat strong{display:block;margin-top:5px;font-size:12px;color:var(--navy)}
+.warning{background:#FFF9ED;border:1px solid #E9D39C;border-radius:11px;padding:13px;font-size:10px;line-height:1.6;color:#806728;margin-top:15px}
+.note{background:#f3f8fb;border:1px solid var(--border);border-radius:11px;padding:12px;font-size:10px;line-height:1.6;color:#63758a;margin-top:12px}
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.metric{border:1px solid var(--border);padding:12px;border-radius:10px;background:#0d2138}.metric b{display:block;font-size:15px;color:var(--navy)}.metric span{font-size:9px;color:var(--muted);font-weight:800}
+ul.info{padding-left:18px;color:#607784;font-size:11px;line-height:1.75}
+.section-heading{display:flex;align-items:center;gap:10px;margin-bottom:14px}.section-heading .mini{width:30px;height:30px;border-radius:9px;background:#142c49;color:var(--primary);display:grid;place-items:center;font-weight:900}
+footer{text-align:center;color:#8194aa;font-size:9px;padding:2px 0 22px}
+@media(max-width:1050px){aside{display:none}.grid{grid-template-columns:1fr}}
+@media(max-width:650px){header{padding:0 15px}.header-right{display:none}main{padding:16px}.form-grid,.tabs{grid-template-columns:1fr}.action{flex-direction:column}.secondary{width:100%}.metric-grid{grid-template-columns:1fr}.hero{padding:22px}.hero-row{align-items:flex-start}.hero-badge{display:none}}
+</style>
+
+<style id="asms-dark-blue-theme">
+body{
+  background:linear-gradient(180deg,#071426 0%,#091b31 100%) !important;
+  color:#e4edf8 !important;
+}
+header{
+  background:rgba(7,20,38,.97) !important;
+  border-bottom-color:#203957 !important;
+}
+.brand h1{color:#e8f0fb !important}
+.brand h1 span{color:#5a9be6 !important}
+.brand small,.status{color:#9db0c7 !important}
+.status{
+  background:#0d2138 !important;
+  border-color:#203957 !important;
+}
+aside{
+  background:#08182c !important;
+  border-right-color:#203957 !important;
+}
+nav a{color:#a9bad0 !important}
+nav a:hover,nav a.active{
+  background:#132d4b !important;
+  color:#62a0e8 !important;
+}
+.side-info{
+  background:linear-gradient(135deg,#0d223a,#102943) !important;
+  border-color:#244360 !important;
+  color:#9db0c7 !important;
+}
+.side-info b{color:#e4edf8 !important}
+.hero{
+  background:linear-gradient(135deg,#06152a 0%,#123a70 55%,#1c4f91 100%) !important;
+}
+.card,.tab,.metric,.stat,.secondary,input,select{
+  background:#0c1d33 !important;
+  color:#e4edf8 !important;
+  border-color:#203957 !important;
+}
+.tab:hover{border-color:#426b9a !important}
+.tab.active{
+  background:#102b49 !important;
+  border-color:#416fa8 !important;
+}
+.icon,.section-heading .mini{
+  background:#142f4e !important;
+  color:#62a0e8 !important;
+}
+.card-title h3,.card-title strong,.metric b,.stat strong{
+  color:#e8f0fb !important;
+}
+.card-title p,.field label,.help,.sub,.info,.note,.warning,.metric span,.stat span{
+  color:#9db0c7 !important;
+}
+.field label{color:#c8d6e7 !important}
+input:focus,select:focus{
+  border-color:#4d83c4 !important;
+  box-shadow:0 0 0 4px rgba(61,125,204,.18) !important;
+}
+input:hover,select:hover{border-color:#3e5f82 !important}
+.secondary{
+  background:#10243d !important;
+  color:#c6d5e6 !important;
+}
+.secondary:hover{background:#17304e !important}
+.tag{
+  background:#10243d !important;
+  border-color:#203957 !important;
+  color:#9db0c7 !important;
+}
+.result.info{
+  background:#102b43 !important;
+  border-color:#2c587c !important;
+}
+.note{
+  background:#10243d !important;
+  border-color:#203957 !important;
+}
+footer{color:#71869e !important}
+</style>
+
+<style id="royal-blue-theme">
+:root{--primary:#4169E1;--primary-dark:#1E3A8A;--cyan:#5B8DEF;--navy:#EAF0FF;--bg:#07142E;--surface:#0B1D3A;--surface2:#10264A;--border:#294477;--text:#E8EEFF;--muted:#A9B9D6}
+body{background:linear-gradient(180deg,#06132B 0%,#0A1D3F 100%)!important;color:#E8EEFF!important}
+header{background:rgba(6,19,43,.98)!important;border-bottom-color:#294477!important}
+.brand h1{color:#EAF0FF!important}.brand h1 span{color:#5B8DEF!important}.brand small,.status{color:#A9B9D6!important}
+.status{background:#10264A!important;border-color:#294477!important}.dot{background:#4169E1!important;box-shadow:0 0 0 3px rgba(65,105,225,.18)!important}
+aside{background:#081833!important;border-right-color:#294477!important}nav a{color:#B7C6E0!important}
+nav a:hover,nav a.active{background:#142F63!important;color:#6F91F2!important}
+.side-info{background:linear-gradient(135deg,#10264A,#153568)!important;border-color:#2C4B7E!important;color:#A9B9D6!important}.side-info b{color:#E8EEFF!important}
+.hero{background:linear-gradient(135deg,#0A1D46 0%,#1E3A8A 52%,#4169E1 100%)!important}
+.card,.tab,.metric,.stat,.secondary,input,select{background:#0B1D3A!important;color:#E8EEFF!important;border-color:#294477!important}
+.tab:hover{border-color:#5578C9!important}.tab.active{background:#102A55!important;border-color:#4169E1!important;box-shadow:inset 4px 0 0 #4169E1!important}
+.icon,.section-heading .mini{background:#153568!important;color:#6F91F2!important}
+.card-title h3,.card-title strong,.metric b,.stat strong{color:#EAF0FF!important}
+.card-title p,.field label,.help,.sub,.info,.note,.warning,.metric span,.stat span{color:#A9B9D6!important}.field label{color:#C9D5EC!important}
+input:focus,select:focus{border-color:#5B7FE0!important;box-shadow:0 0 0 4px rgba(65,105,225,.20)!important}
+input:hover,select:hover{border-color:#4A67A5!important}
+.primary{background:linear-gradient(135deg,#4169E1,#1E3A8A)!important;box-shadow:0 8px 18px rgba(30,58,138,.30)!important}
+.primary:hover{box-shadow:0 11px 22px rgba(65,105,225,.32)!important}
+.secondary{background:#10264A!important;color:#C9D5EC!important}.secondary:hover{background:#173568!important}
+.tag{background:#10264A!important;border-color:#294477!important;color:#A9B9D6!important}
+.result.info{background:#102A4D!important;border-color:#315B8D!important}.note{background:#10264A!important;border-color:#294477!important}
+.bar div{background:linear-gradient(90deg,#4169E1,#6F91F2)!important}footer{color:#7F94B7!important}
+</style>
+
+<style id="royal-blue-background">
+html, body {
+  background: #4169E1 !important;
+  color: #ffffff !important;
+}
+
+body {
+  background:
+    linear-gradient(180deg, #4169E1 0%, #3158C8 55%, #2447AD 100%) !important;
+}
+
+header {
+  background: #1E3A8A !important;
+  border-bottom-color: rgba(255,255,255,.22) !important;
+}
+
+aside {
+  background: #2447AD !important;
+  border-right-color: rgba(255,255,255,.20) !important;
+}
+
+main {
+  background: transparent !important;
+}
+
+.card,
+.tabs .tab,
+.metric,
+.stat,
+.secondary,
+input,
+select {
+  background: rgba(8, 28, 78, .88) !important;
+  border-color: rgba(255,255,255,.20) !important;
+}
+
+.hero {
+  background: linear-gradient(135deg, #1E3A8A 0%, #4169E1 55%, #5B7FEA 100%) !important;
+}
+
+nav a {
+  color: #EAF0FF !important;
+}
+
+nav a:hover,
+nav a.active {
+  background: rgba(255,255,255,.15) !important;
+  color: #ffffff !important;
+}
+
+.side-info {
+  background: rgba(8, 28, 78, .75) !important;
+  border-color: rgba(255,255,255,.20) !important;
+  color: #DCE6FF !important;
+}
+
+.brand h1,
+.card-title h3,
+.card-title strong,
+.metric b,
+.stat strong {
+  color: #ffffff !important;
+}
+
+.field label {
+  color: #F1F5FF !important;
+}
+
+.help,
+.card-title p,
+.metric span,
+.stat span,
+.sub,
+.note,
+footer {
+  color: #D0DCFA !important;
+}
+
+.primary {
+  background: linear-gradient(135deg, #123A9A, #0B2770) !important;
+}
+
+.secondary {
+  background: rgba(8, 28, 78, .75) !important;
+  color: #ffffff !important;
+}
+
+.tag {
+  background: rgba(255,255,255,.10) !important;
+  color: #EAF0FF !important;
+}
+
+input:focus,
+select:focus {
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(255,255,255,.18) !important;
+}
+</style>
+
+
+<style id="visible-result-metrics">
+.result .metric-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 10px !important;
+  margin-top: 14px !important;
+}
+
+.result .metric {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: #173B8F !important;
+  border: 1px solid rgba(255,255,255,.35) !important;
+  border-radius: 10px !important;
+  padding: 13px !important;
+  min-height: 65px !important;
+}
+
+.result .metric span {
+  display: block !important;
+  color: #DCE7FF !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: .4px !important;
+}
+
+.result .metric b {
+  display: block !important;
+  margin-top: 5px !important;
+  color: #FFFFFF !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.result .score,
+.result .result-title {
+  color: #FFFFFF !important;
+}
+
+.result .sub {
+  color: #E4ECFF !important;
+}
+
+@media(max-width:650px) {
+  .result .metric-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+</style>
+
+
+<style id="prediction-visible-override">
+/* High-contrast prediction/result panel */
+.result,
+.result-card,
+.prediction-result,
+#heartResult,
+#diabetesResult {
+  background: linear-gradient(135deg, #0B2E73 0%, #174EA6 55%, #1E63C6 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255,255,255,.30) !important;
+  box-shadow: 0 12px 32px rgba(5,25,70,.35) !important;
+}
+
+.result * {
+  color: #FFFFFF !important;
+}
+
+.result .score,
+.result .result-title,
+.result h1,
+.result h2,
+.result h3,
+.result strong,
+.result b {
+  color: #FFFFFF !important;
+}
+
+.result .sub,
+.result small,
+.result .muted,
+.result .metric span {
+  color: #DCEBFF !important;
+}
+
+.result .metric-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.result .metric {
+  background: #0A347F !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255,255,255,.38) !important;
+  border-radius: 12px !important;
+  min-height: 76px !important;
+  padding: 14px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10) !important;
+}
+
+.result .metric span {
+  display: block !important;
+  color: #BFD9FF !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+}
+
+.result .metric b {
+  display: block !important;
+  margin-top: 6px !important;
+  color: #FFFFFF !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+}
+
+.result .bar,
+.result .progress,
+.result .risk-bar {
+  background: rgba(255,255,255,.20) !important;
+}
+
+.result .bar > *,
+.result .progress > *,
+.result .risk-bar > * {
+  background: #FFFFFF !important;
+}
+
+@media (max-width: 700px) {
+  .result .metric-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+</style>
+
+
+<style>
+.research-model-notice{
+  margin-top:12px;padding:12px 14px;border-radius:10px;
+  background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.25);
+  color:#E8F1FF!important;font-size:12px;line-height:1.5;
+}
+</style>
+
+</head>
+<body>
+<header>
+ <div class="brand">
+  <svg class="brandmark" viewBox="0 0 64 64" aria-label="ASMS LAB logo" role="img">
+   <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#071a33"/><stop offset="1" stop-color="#123b73"/></linearGradient></defs>
+   <rect x="3" y="3" width="58" height="58" rx="17" fill="url(#lg)"/>
+   <path d="M17 33h7l4-13 7 25 5-15h7" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+   <path d="M47 13v8M43 17h8" stroke="#e0e9f5" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>
+  <div><h1>ASMS <span>LAB</span></h1><small>Clinical risk intelligence • Research laboratory</small></div>
+ </div>
+ <div class="header-right"><div class="status"><span class="dot"></span>Local processing • No server upload</div></div>
+</header>
+
+<div class="layout">
+<aside>
+ <div class="section-label">Workspace</div>
+ <nav>
+  <a class="active" href="#assessment">▦ Assessment</a>
+  <a href="#models">♡ Risk Models</a>
+  <a href="#validation">✓ Validation</a>
+  <a href="#documentation">▤ Documentation</a>
+  <a href="#care">♡ Care & Prevention</a>
+   <a href="#safety">ⓘ Safety</a>
+ </nav>
+ <div class="side-info"><b>Privacy-first</b><br>Values entered here are processed in this page. No patient data is sent to a server by this HTML file.</div>
+</aside>
+
+<main id="assessment">
+ <div class="hero">
+ <div class="hero-row">
+  <div><h2>Clinical Risk Assessment Dashboard</h2><p>Structured cardiovascular and metabolic risk profiling with transparent calculations, expanded clinical context, validation-aware outputs, and privacy-first browser processing.</p></div>
+  <div class="hero-badge">RESEARCH • CLINICAL-STYLE PROTOTYPE</div>
+ </div>
+</div>
+<div class="card" id="models">
+  <div class="tabs">
+   <button class="tab active" onclick="showModel('heart')"><div class="icon">♥</div><div><strong>10-Year Cardiovascular Risk</strong><span>ACC/AHA Pooled Cohort Equation reference engine</span></div></button>
+   <button class="tab" onclick="showModel('diabetes')"><div class="icon">◉</div><div><strong>Type 2 Diabetes Screening</strong><span>Expanded research screening profile</span></div></button>
+  </div>
+
+  <div id="heartPanel" class="panel active">
+   <div class="grid">
+    <section>
+     <div class="card-title"><div><h3>Cardiovascular Assessment</h3><p>For primary-prevention risk estimation; this is not an acute heart-attack detector.</p></div><span class="tag">RESEARCH • ALL-AGE</span></div>
+     <div class="form-grid">
+      <div class="field"><label>Age <small>40–79 for PCE</small></label><input id="age" type="number" min="20" max="120" value="52"></div>
+      <div class="field"><label>Sex</label><select id="sex"><option value="male">Male</option><option value="female">Female</option></select></div>
+      <div class="field"><label>Population equation</label><select id="race"><option value="other" selected>Other / international</option><option value="white">White</option><option value="black">Black / African American</option></select><div class="help">The PCE was developed/validated for U.S. White and Black populations; international use requires caution.</div></div>
+      <div class="field"><label>Systolic BP <small>mmHg</small></label><input id="sbp" type="number" min="70" max="250" value="135"></div>
+      <div class="field"><label>BP medication</label><select id="bpmed"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div class="field"><label>Total cholesterol <small>mg/dL</small></label><input id="tc" type="number" min="80" max="500" value="220"></div>
+      <div class="field"><label>HDL cholesterol <small>mg/dL</small></label><input id="hdl" type="number" min="10" max="150" value="45"></div>
+      <div class="field"><label>LDL cholesterol <small>mg/dL</small></label><input id="ldl" type="number" min="20" max="500" value="130"></div>
+      <div class="field"><label>Triglycerides <small>mg/dL</small></label><input id="trig" type="number" min="20" max="2000" value="170"></div>
+      <div class="field"><label>Current smoker</label><select id="smoke"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div class="field"><label>Diabetes</label><select id="cdiab"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div class="field"><label>BMI <small>kg/m²</small></label><input id="cbmi" type="number" step=".1" min="10" max="80" value="28.5"></div>
+      <div class="field"><label>eGFR <small>mL/min/1.73m²</small></label><input id="egfr" type="number" min="1" max="200" value="90"></div>
+      <div class="field"><label>HbA1c <small>%</small></label><input id="chba1c" type="number" step=".1" min="3" max="20" value="5.6"></div>
+      <div class="field"><label>Family history of premature CVD</label><select id="cfamily"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div class="field full"><label>Previous ASCVD / heart attack / stroke</label><select id="priorcv"><option value="0">No</option><option value="1">Yes</option></select><div class="help">If Yes, the primary-prevention PCE should not be interpreted as the appropriate risk model.</div></div>
+     </div>
+     <div class="action"><button class="primary" onclick="predictHeart()">Calculate Heart Risk Screening Score</button><button class="secondary" onclick="resetForm('heart')">Reset</button></div>
+     <div id="heartResult" class="result">
+      <div class="result-head"><div class="result-title" id="heartTitle"></div><div id="heartProb" class="score">—</div></div>
+      <div id="heartSub" class="sub"></div><div class="bar"><div id="heartBar"></div></div>
+      <div class="research-model-notice">This percentage is a <b>research screening-model score</b> for testing the app across adult ages. It is not a validated probability of having a heart attack and should not be used for diagnosis or treatment decisions.</div>
+<div class="metric-grid"><div class="metric"><span>ENGINE</span><b id="heartEngine">PCE</b></div><div class="metric"><span>AGE RANGE</span><b>40–79</b></div><div class="metric"><span>OUTCOME</span><b>Hard ASCVD</b></div></div>
+     </div>
+    </section>
+
+    <section class="card" style="margin:0">
+     <h3 style="margin:0;color:var(--navy);font-size:16px">Why these parameters?</h3>
+     <p style="font-size:12px;color:var(--muted);line-height:1.55">The ACC/AHA Pooled Cohort Equations use age, sex, total cholesterol, HDL-C, systolic BP, hypertension treatment, smoking and diabetes. Additional inputs below improve the clinical profile, but are not silently inserted into the PCE calculation.</p>
+     <div class="stats">
+      <div class="stat"><span>PCE INPUTS</span><strong>8 core variables</strong></div>
+      <div class="stat"><span>EXTRA PROFILE</span><strong>BMI • eGFR • HbA1c • LDL • TG</strong></div>
+      <div class="stat"><span>PROCESSING</span><strong>Local browser</strong></div>
+      <div class="stat"><span>VALIDATION</span><strong>External clinical validation required</strong></div>
+     </div>
+     <div class="warning"><b>Important:</b> This estimates future ASCVD risk in a primary-prevention setting. It does not diagnose a current heart attack. Acute symptoms require urgent medical evaluation, ECG and appropriate laboratory/clinical assessment.</div>
+    </section>
+   </div>
+  </div>
+
+  <div id="diabetesPanel" class="panel">
+   <div class="grid">
+    <section>
+     <div class="card-title"><div><h3>Type 2 Diabetes Screening Profile</h3><p>More complete than the original 8-variable demo. The score is explicitly a research screening index unless externally validated.</p></div><span class="tag">RESEARCH SCORE</span></div>
+     <div class="form-grid">
+      <div class="field"><label>Age <small>years</small></label><input id="dage" type="number" min="10" max="120" value="35"></div>
+      <div class="field"><label>Sex</label><select id="dsex"><option>Male</option><option>Female</option></select></div>
+      <div class="field"><label>BMI <small>kg/m²</small></label><input id="dbmi" type="number" step=".1" min="10" max="80" value="28.5"></div>
+      <div class="field"><label>Waist circumference <small>cm</small></label><input id="waist" type="number" min="40" max="200" value="94"></div>
+      <div class="field"><label>Fasting glucose <small>mg/dL</small></label><input id="fg" type="number" min="40" max="500" value="120"></div>
+      <div class="field"><label>HbA1c <small>%</small></label><input id="dhba1c" type="number" step=".1" min="3" max="20" value="5.8"></div>
+      <div class="field"><label>Random glucose <small>mg/dL</small></label><input id="rg" type="number" min="40" max="600" value="130"></div>
+      <div class="field"><label>Blood pressure <small>mmHg</small></label><input id="dbp" type="number" min="70" max="250" value="135"></div>
+      <div class="field"><label>Triglycerides <small>mg/dL</small></label><input id="dtrig" type="number" min="20" max="2000" value="170"></div>
+      <div class="field"><label>HDL <small>mg/dL</small></label><input id="dhdl" type="number" min="10" max="150" value="45"></div>
+      <div class="field"><label>Family history of diabetes</label><select id="dfamily"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div class="field"><label>Hypertension diagnosis</label><select id="dhtn"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div class="field"><label>Physical activity <small>≥150 min/week</small></label><select id="activity"><option value="1">Yes</option><option value="0">No</option></select></div>
+      <div class="field"><label>History of gestational diabetes</label><select id="gest"><option value="0">No / not applicable</option><option value="1">Yes</option></select></div>
+      <div class="field"><label>Previous prediabetes</label><select id="prediab"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div class="field"><label>Pregnancies <small>count</small></label><input id="preg" type="number" min="0" max="30" value="2"></div>
+     </div>
+     <div class="action"><button class="primary" onclick="predictDiabetes()">Run Expanded Diabetes Screening</button><button class="secondary" onclick="resetForm('diabetes')">Reset</button></div>
+     <div id="diabetesResult" class="result">
+      <div class="result-head"><div class="result-title" id="diabetesTitle"></div><div id="diabetesProb" class="score">—</div></div>
+      <div id="diabetesSub" class="sub"></div><div class="bar"><div id="diabetesBar"></div></div>
+      <div class="metric-grid"><div class="metric"><span>OUTPUT</span><b>Screening index</b></div><div class="metric"><span>LABS</span><b>Glucose + HbA1c</b></div><div class="metric"><span>VALIDATION</span><b>Not established</b></div></div>
+     </div>
+    </section>
+
+    <section class="card" style="margin:0">
+     <h3 style="margin:0;color:var(--navy);font-size:16px">Diabetes interpretation</h3>
+     <ul class="info">
+      <li>Fasting glucose and HbA1c are more clinically meaningful than the original skin-thickness/insulin-only approach.</li>
+      <li>BMI, waist circumference, family history, blood pressure, triglycerides and HDL provide additional metabolic context.</li>
+      <li>The score shown by this prototype is not a clinically validated probability and must not be advertised as “X% accurate.”</li>
+     </ul>
+     <div class="warning"><b>Diagnostic distinction:</b> A risk/screening score is not the same as a diabetes diagnosis. Diagnostic interpretation requires appropriate laboratory testing and clinical context.</div>
+    </section>
+   </div>
+  </div>
+ </div>
+
+ <div class="grid" id="validation">
+  <section class="card">
+   <div class="card-title"><div><h3>Model Quality & Validation</h3><p>The most important upgrade is separating a validated equation from a locally invented score.</p></div></div>
+   <div class="stats">
+    <div class="stat"><span>CARDIOVASCULAR ENGINE</span><strong>Published PCE equation</strong></div>
+    <div class="stat"><span>DIABETES ENGINE</span><strong>Research screening index</strong></div>
+    <div class="stat"><span>CALIBRATION</span><strong>Not performed on local data</strong></div>
+    <div class="stat"><span>EXTERNAL VALIDATION</span><strong>Required before clinical use</strong></div>
+   </div>
+   <div class="note"><b>How to obtain a real accuracy value:</b> train/lock the model on a development dataset, then evaluate an untouched test cohort. Report AUROC, sensitivity, specificity, PPV, NPV, Brier score, calibration slope/intercept and a calibration plot. Accuracy alone is insufficient for a medical prediction model.</div>
+  </section>
+
+  <section class="card" id="documentation">
+   <div class="card-title"><div><h3>Technical Documentation</h3><p>Current prototype architecture.</p></div></div>
+   <ul class="info">
+    <li><b>Frontend:</b> standalone HTML/CSS/JavaScript.</li>
+    <li><b>Cardiovascular:</b> 2013 ACC/AHA Pooled Cohort Equation reference implementation for 10-year hard ASCVD.</li>
+    <li><b>Diabetes:</b> expanded transparent screening index; not a trained/validated clinical model.</li>
+    <li><b>Data:</b> no server/database is required for this local prototype.</li>
+    <li><b>Safety:</b> input range checks, prior-ASCVD warning, acute-symptom warning and international-use caveats.</li>
+   </ul>
+  </section>
+ </div>
+
+ <div class="card" id="safety">
+  <div class="card-title"><div><h3>Safety & Clinical Limitations</h3><p>Read before interpreting any output.</p></div></div>
+  <div class="warning" style="margin-top:0">
+   <b>Clinical limitation:</b> This HTML prototype is not an approved medical device and has not been prospectively validated for diagnosis, treatment, triage or emergency decision-making.
+   <br><br>
+   <b>Acute symptoms:</b> severe/persistent chest pressure or pain, shortness of breath, fainting, sudden weakness, or other concerning symptoms require urgent medical assessment rather than reliance on a browser prediction.
+   <br><br>
+   <b>International use:</b> published U.S.-derived cardiovascular equations can behave differently in other populations. Country-specific validation/recalibration is required before clinical deployment in Pakistan or elsewhere.
+  </div>
+ </div>
+
+ <footer><b>ASMS LAB</b> • Evidence-informed research prototype • Local browser processing • Clinical validation required • Developed by Dr. M. Asad Iqbal • Royal blue research theme • Patient education references: CDC / AHA</footer>
+</main>
+</div>
+
+<script>
+function byId(id){return document.getElementById(id)}
+function clamp(x,a=.001,b=.999){return Math.min(b,Math.max(a,x))}
+function showModel(model){
+ document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+ byId(model+'Panel').classList.add('active');
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+ document.querySelectorAll('.tab')[model==='heart'?0:1].classList.add('active');
+}
+function validNumber(id,min,max){
+ const v=Number(byId(id).value);
+ if(!Number.isFinite(v)||v<min||v>max) throw new Error(id+' is outside its allowed range.');
+ return v;
+}
+function showResult(prefix,risk,title,sub,mode='normal'){
+ const box=byId(prefix+'Result');
+ box.className='result '+(mode==='info'?'info':risk>=.65?'high':risk>=.35?'medium':'low');
+ box.style.display='block';
+ byId(prefix+'Title').textContent=title;
+ byId(prefix+'Prob').textContent=(risk*100).toFixed(1)+'%';
+ byId(prefix+'Sub').textContent=sub;
+ byId(prefix+'Bar').style.width=(risk*100)+'%';
+}
+function pceRisk(age,sex,race,tc,hdl,sbp,treated,smoker,diabetes){
+ const la=Math.log(age), ltc=Math.log(tc), lhdl=Math.log(hdl), lsbp=Math.log(sbp);
+ let sum,mean,s0;
+ const group=race==='black'?'black':'white';
+ if(sex==='female' && group==='white'){
+   sum=-29.799*la+4.884*la*la+13.540*ltc-3.114*la*ltc-13.578*lhdl+3.149*la*lhdl+
+       (treated?2.019:1.957)*lsbp+7.574*smoker-1.665*la*smoker+0.661*diabetes;
+   mean=-29.18;s0=.9665;
+ }else if(sex==='female' && group==='black'){
+   sum=17.114*la+.940*ltc-18.920*lhdl+4.475*la*lhdl+
+       (treated?(29.291-6.432*la):(27.820-6.087*la))*lsbp+.691*smoker+.874*diabetes;
+   mean=86.61;s0=.9533;
+ }else if(sex==='male' && group==='white'){
+   sum=12.344*la+11.853*ltc-2.664*la*ltc-7.990*lhdl+1.769*la*lhdl+
+       (treated?1.797:1.764)*lsbp+7.837*smoker-1.795*la*smoker+.658*diabetes;
+   mean=61.18;s0=.9144;
+ }else{
+   sum=2.469*la+.302*ltc-.307*lhdl+(treated?1.916:1.809)*lsbp+.549*smoker+.645*diabetes;
+   mean=19.54;s0=.8954;
+ }
+ return clamp(1-Math.pow(s0,Math.exp(sum-mean)),0,.999);
+}
+function predictHeart(){
+  try{
+    const age = validNumber('age',20,120);
+    const sbp = validNumber('sbp',70,250);
+    const tc = validNumber('tc',80,500);
+    const hdl = validNumber('hdl',10,150);
+    const ldl = validNumber('ldl',20,500);
+    const trig = validNumber('trig',20,2000);
+    const bmi = validNumber('cbmi',10,80);
+    const egfr = validNumber('egfr',1,200);
+    const hba = validNumber('chba1c',3,20);
+
+    const sex = byId('sex').value;
+    const smoker = +byId('smoke').value;
+    const diabetes = +byId('cdiab').value;
+    const treated = +byId('bpmed').value;
+    const family = +byId('cfamily').value;
+    const prior = +byId('priorcv').value;
+
+    /*
+      Research screening model for demonstration/testing across adult ages.
+      This is NOT a validated probability of a heart attack and is not PCE.
+    */
+    let score = 2;
+
+    if(age > 30) score += Math.min(12,(age-30)*0.22);
+    if(age >= 45) score += 5;
+    if(age >= 55) score += 6;
+
+    if(sbp > 120) score += Math.min(15,(sbp-120)*0.22);
+    if(sbp >= 140) score += 5;
+    if(sbp >= 160) score += 4;
+    if(treated) score += 2;
+
+    if(tc > 200) score += Math.min(8,(tc-200)*0.07);
+    if(tc >= 240) score += 3;
+
+    if(hdl < 40) score += 6;
+    else if(hdl < 50) score += 3;
+
+    if(ldl >= 130) score += Math.min(8,(ldl-130)*0.045);
+    if(ldl >= 160) score += 3;
+    if(ldl >= 190) score += 4;
+
+    if(trig >= 150) score += Math.min(10,(trig-150)*0.035);
+    if(trig >= 200) score += 2;
+    if(trig >= 400) score += 4;
+
+    if(smoker) score += 8;
+    if(diabetes) score += 8;
+    if(family) score += 7;
+    if(prior) score += 15;
+    if(bmi >= 25) score += Math.min(7,(bmi-25)*0.45);
+    if(bmi >= 30) score += 2;
+    if(egfr < 90) score += Math.min(5,(90-egfr)*0.06);
+    if(hba >= 5.7) score += Math.min(7,(hba-5.7)*2.2);
+    if(hba >= 6.5) score += 3;
+    if(sex === 'male') score += 2;
+
+    const percent = Math.max(1,Math.min(95,score));
+
+    let title = 'LOWER SCREENING RANGE';
+    if(percent >= 20) title = 'ELEVATED SCREENING RANGE';
+    if(percent >= 40) title = 'HIGH SCREENING RANGE';
+    if(percent >= 65) title = 'VERY HIGH SCREENING RANGE';
+
+    const result = byId('heartResult');
+    result.className = 'result '+(percent>=65?'high':percent>=40?'medium':'low');
+    result.style.display = 'block';
+
+    byId('heartTitle').textContent = title;
+    byId('heartProb').textContent = percent.toFixed(1)+'%';
+    byId('heartSub').textContent =
+      'Research cardiovascular screening-model score based on the entered factors. ' +
+      'It is not a validated 10-year heart-attack or ASCVD probability. ' +
+      'PCE is not used for this all-age test.';
+    byId('heartBar').style.width = percent+'%';
+
+    byId('heartEngine').textContent = 'Research Risk Model';
+    const ageBox = document.querySelector('#heartResult .metric:nth-child(2) b');
+    const outcomeBox = document.querySelector('#heartResult .metric:nth-child(3) b');
+    if(ageBox) ageBox.textContent = age+' years';
+    if(outcomeBox) outcomeBox.textContent = 'Cardiovascular screening';
+
+  }catch(e){
+    alert('Please correct the inputs. '+e.message);
+  }
+}
+function predictDiabetes(){
+ try{
+  const age=validNumber('dage',10,120), bmi=validNumber('dbmi',10,80), waist=validNumber('waist',40,200), fg=validNumber('fg',40,500), hba=validNumber('dhba1c',3,20), rg=validNumber('rg',40,600), bp=validNumber('dbp',70,250), tg=validNumber('dtrig',20,2000), hdl=validNumber('dhdl',10,150), preg=validNumber('preg',0,30);
+  const family=+byId('dfamily').value,htn=+byId('dhtn').value,activity=+byId('activity').value,gest=+byId('gest').value,prediab=+byId('prediab').value;
+  /* Transparent research index: intentionally NOT presented as a calibrated probability. */
+  let s=0;
+  s+=Math.max(0,(age-30))*0.9;
+  s+=Math.max(0,(bmi-25))*2.0;
+  s+=Math.max(0,(waist-88))*0.10;
+  s+=Math.max(0,(fg-100))*0.45;
+  s+=Math.max(0,(hba-5.7))*15;
+  s+=Math.max(0,(rg-140))*0.12;
+  s+=Math.max(0,(bp-120))*0.12;
+  s+=Math.max(0,(tg-150))*0.025;
+  s+=Math.max(0,(50-hdl))*0.10;
+  s+=family*10+htn*7+(1-activity)*6+gest*8+prediab*18+Math.max(0,preg-3)*1.2;
+  const index=clamp(s/100,0,.99);
+  let title=index<.20?'LOW SCREENING INDEX':index<.45?'MODERATE SCREENING INDEX':'HIGH SCREENING INDEX';
+  let lab='';
+  if(fg>=126||hba>=6.5||rg>=200) lab='The entered glucose/HbA1c values include a diabetes-range result and require appropriate clinical/laboratory confirmation.';
+  else if((fg>=100&&fg<=125)||(hba>=5.7&&hba<=6.4)) lab='The entered values include a prediabetes-range marker; clinical follow-up/testing may be appropriate.';
+  else lab='The entered laboratory values do not by themselves establish a diabetes diagnosis.';
+  showResult('diabetes',index,title,'Research screening index, not a calibrated probability. '+lab+' Score components include age, BMI, waist, glucose, HbA1c, BP, triglycerides, HDL, family history, hypertension, activity, gestational diabetes, prior prediabetes and pregnancy count.');
+ }catch(e){alert('Please correct the inputs. '+e.message)}
+}
+function resetForm(m){
+ if(m==='heart'){
+  const vals={age:52,sex:'male',race:'other',sbp:135,bpmed:0,tc:220,hdl:45,ldl:130,trig:170,smoke:0,cdiab:0,cbmi:28.5,egfr:90,chba1c:5.6,cfamily:0,priorcv:0};
+  Object.keys(vals).forEach(k=>byId(k).value=vals[k]);byId('heartResult').style.display='none';
+ }else{
+  const vals={dage:35,dsex:'Male',dbmi:28.5,waist:94,fg:120,dhba1c:5.8,rg:130,dbp:135,dtrig:170,dhdl:45,dfamily:0,dhtn:0,activity:1,gest:0,prediab:0,preg:2};
+  Object.keys(vals).forEach(k=>byId(k).value=vals[k]);byId('diabetesResult').style.display='none';
+ }
+}
+</script>
+</body>
+</html>
